@@ -11,7 +11,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
-const API_URL = 'https://milkandhoneybnb.com/api';
+const API_URL = 'https://www.milkandhoneybnb.com/api';
 
 export default function NewQuoteScreen() {
   const [clients, setClients] = useState([]);
@@ -60,11 +60,24 @@ export default function NewQuoteScreen() {
   };
 
   const handleCreate = async () => {
-    if (!form.client_id || !form.number_of_beds || !form.number_of_guests ||
-        !form.unit_bed_cost || !form.check_in_date || !form.check_out_date) {
+    console.log('🔧 [handleCreate] Attempting to create new quote...');
+    console.log('📝 Form state:', form);
+    console.log('📅 Selected dates:', selectedDates);
+    console.log('📎 Attached files:', attachedFiles);
+
+    if (
+      !form.client_id ||
+      !form.number_of_beds ||
+      !form.number_of_guests ||
+      !form.unit_bed_cost ||
+      !form.check_in_date ||
+      !form.check_out_date
+    ) {
+      console.warn('❗ Missing required fields');
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
+
     try {
       const newQuote = {
         ...form,
@@ -74,11 +87,21 @@ export default function NewQuoteScreen() {
         laundry_dates: Object.keys(selectedDates.laundry).filter(date => selectedDates.laundry[date].selected),
         attached_documents: attachedFiles,
       };
-      await axios.post(`${API_URL}/quotes`, newQuote);
-      router.back();
+
+      console.log('📤 Payload to send:', newQuote);
+      console.log(`📡 POST ${API_URL}/quotes`);
+
+      const response = await axios.post(`${API_URL}/quotes`, newQuote);
+      console.log('✅ Server response:', response.data);
+
       Alert.alert('Success', 'Quote created successfully');
+      router.back();
     } catch (error) {
-      console.error('Error creating quote:', error);
+      console.error('❌ Error creating quote:', error);
+      if (error.response) {
+        console.error('📬 Server responded with status:', error.response.status);
+        console.error('📨 Response data:', error.response.data);
+      }
       Alert.alert('Error', 'Failed to create quote');
     }
   };

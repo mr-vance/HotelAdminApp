@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { Link } from 'expo-router';
 import axios from 'axios';
 
@@ -46,37 +46,41 @@ export default function ClientsScreen() {
   );
 
   return (
-    <ThemedView style={styles.container}>
-      <TextInput
-        style={[styles.searchInput, { borderColor: Colors[colorScheme ?? 'light'].tint }]}
-        placeholder="Search clients..."
-        value={search}
-        onChangeText={setSearch}
-      />
-      <FlatList
-        data={filteredClients}
-        renderItem={renderClient}
-        keyExtractor={item => item.client_id.toString()}
-        ListEmptyComponent={<ThemedText>No clients found.</ThemedText>}
-      />
-      <Link href="/client/new" asChild>
-        <TouchableOpacity style={[styles.addButton, { backgroundColor: Colors[colorScheme ?? 'light'].tint }]}>
-          <IconSymbol name="plus" size={24} color="#fff" />
-        </TouchableOpacity>
-      </Link>
-    </ThemedView>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ThemedView style={styles.container}>
+        <TextInput
+          style={[styles.searchInput, { borderColor: Colors[colorScheme ?? 'light'].tint }]}
+          placeholder="Search clients..."
+          value={search}
+          onChangeText={setSearch}
+        />
+        <FlatList
+          data={filteredClients}
+          renderItem={renderClient}
+          keyExtractor={item => item.client_id.toString()}
+          ListEmptyComponent={<ThemedText>No clients found.</ThemedText>}
+        />
+        <Link href="/client/new" asChild>
+          <TouchableOpacity style={[styles.addButton, { backgroundColor: Colors[colorScheme ?? 'light'].tint }]}>
+            <IconSymbol name="plus" size={24} color="#fff" />
+          </TouchableOpacity>
+        </Link>
+      </ThemedView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   searchInput: {
     borderWidth: 1,
     borderRadius: 8,
     padding: 8,
+    marginTop: 8,
     marginBottom: 16,
   },
   clientItem: {

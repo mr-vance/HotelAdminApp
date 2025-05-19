@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 
@@ -8,7 +8,8 @@ import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
-const API_URL = 'https://milkandhoneybnb.com/api';
+// Make sure this uses www to avoid redirects
+const API_URL = 'https://www.milkandhoneybnb.com/api';
 
 export default function NewClientScreen() {
   const [form, setForm] = useState({
@@ -25,16 +26,36 @@ export default function NewClientScreen() {
   const colorScheme = useColorScheme();
 
   const handleCreate = async () => {
+    console.log('🔧 Submitting new client...');
+    console.log('📦 Form data:', form);
+    console.log('🌍 POST to:', `${API_URL}/clients`);
+
     if (!form.first_name || !form.email_address) {
-      alert('First name and email address are required');
+      Alert.alert('Validation Error', 'First name and email address are required');
       return;
     }
+
     try {
-      await axios.post(`${API_URL}/clients`, form);
-      router.back();
+      const response = await axios.post(`${API_URL}/clients`, form);
+
+      console.log('✅ Response Status:', response.status);
+      console.log('✅ Server Response:', response.data);
+
+      if (response.data && response.data.client_id) {
+        Alert.alert('Success', 'Client created successfully');
+        router.back();
+      } else {
+        Alert.alert('Unexpected Response', 'The server did not return a valid client_id');
+      }
     } catch (error) {
-      console.error('Error creating client:', error);
-      alert('Failed to create client');
+      console.error('❌ Error creating client:', error);
+      if (error.response) {
+        console.error('🔴 Server Error Status:', error.response.status);
+        console.error('🔴 Server Error Data:', error.response.data);
+        Alert.alert('Error', `Server error: ${error.response.status}`);
+      } else {
+        Alert.alert('Error', 'Failed to create client');
+      }
     }
   };
 
